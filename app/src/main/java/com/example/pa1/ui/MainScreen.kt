@@ -1,5 +1,9 @@
 package com.example.pa1.ui
 
+import android.content.Context
+import android.location.Geocoder
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +17,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.pa1.controller.WeatherApi
+import java.io.IOException
+import java.util.*
 
 @Composable
 fun MainScreen() {
@@ -47,6 +55,7 @@ fun Heading(title: String) {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Body() {
@@ -54,6 +63,9 @@ fun Body() {
         // Remember state of entered value
         var textState by remember { mutableStateOf("") }
         val keyboardController = LocalSoftwareKeyboardController.current
+        var data by remember {
+            mutableStateOf("initial")
+        }
 
         TextField(
             value = textState,
@@ -61,13 +73,31 @@ fun Body() {
             label = { Text("Enter City Code") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
-                onDone = {keyboardController?.hide()})
+                onDone = { keyboardController?.hide() })
         )
-
+        val context = LocalContext.current
         // Button to find temperature
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {
+            val city: String = textState
+            val gc = Geocoder(context)
+            if (Geocoder.isPresent()) {
+                try {
+                    val location = textState
+                    val addresses = gc.getFromLocationName(location, 5)
+                    val address = addresses[0]
+                    var forecast = "HELLO WORLD"
+                    val api = WeatherApi()
+                    println(city)
+                    forecast = api.getWeatherData(address.latitude, address.longitude)
+                    data = forecast
+                } catch(e: IOException) {
+
+                }
+            }
+
+        }) {
             Text("Find Temperature")
         }
+        Text(text = data)
     }
 }
-
