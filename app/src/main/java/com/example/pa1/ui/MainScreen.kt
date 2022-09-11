@@ -4,11 +4,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
@@ -26,6 +32,8 @@ fun MainScreen() {
         ) {
             Body()
         }
+        // Label that displays temperature
+
     }
 }
 
@@ -39,15 +47,27 @@ fun Heading(title: String) {
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Body() {
-    // Remember state of entered value
-    var textState by remember { mutableStateOf("") }
+    Column {
+        // Remember state of entered value
+        var textState by remember { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
 
-    TextField(
-        value = textState,
-        onValueChange = { textState = it },
-        label = { Text("Enter City Code") }
-    )
+        TextField(
+            value = textState,
+            onValueChange = { textState = it },
+            label = { Text("Enter City Code") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {keyboardController?.hide()})
+        )
+
+        // Button to find temperature
+        Button(onClick = { /*TODO*/ }) {
+            Text("Find Temperature")
+        }
+    }
 }
 
